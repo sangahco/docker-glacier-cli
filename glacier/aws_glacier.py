@@ -184,15 +184,15 @@ def _main():
 
 if __name__=='__main__':   
     _parser = argparse.ArgumentParser()
-    _parser.add_argument('-f', action='store', dest='file', type=str, help='File to upload')
-    _parser.add_argument('-m', action='store', dest='descr', type=str, help='Description')
-    _parser.add_argument('-r', '--register', action='store_true', dest='register', help='Register vault list to ES')
-    _parser.add_argument('-v', '--verbose', action='store_true', dest='debug', help='More logging on console')
-    _parser.add_argument('-d', '--delete', action='store', dest='delete', type=str, help='Delete an archive')
-    _parser.add_argument('--jobs', action='store_true', dest='jobs', help='Retrieve job list')
-    _parser.add_argument('-j', '--job', action='store', dest='job', type=str, help='Retrieve a job output')
-    _parser.add_argument('-l', '--archive-list', action='store_true', dest='list', help='Retrieve the archive list')
-    _parser.add_argument('-O', '--to-stdout', action='store_true', dest='stdout', help='Print to stdout')
+    _parser.add_argument('-f', action='store', dest='file', type=str, help='the file to upload without full path')
+    _parser.add_argument('-m', action='store', dest='descr', type=str, help='description to upload')
+    _parser.add_argument('-r', '--register', action='store_true', dest='register', help='register vault list to ES')
+    _parser.add_argument('-v', '--verbose', action='store_true', dest='debug', help='verbose mode')
+    _parser.add_argument('-d', '--delete', action='store', dest='delete', type=str, help='delete an archive')
+    _parser.add_argument('--jobs', action='store_true', dest='jobs', help='retrieve job list')
+    _parser.add_argument('-j', '--job', action='store', dest='job', type=str, help='retrieve a job output')
+    _parser.add_argument('-l', '--archive-list', action='store_true', dest='list', help='retrieve the archive list')
+    _parser.add_argument('-O', '--to-stdout', action='store_true', dest='stdout', help='print output to stdout')
 
     _args = _parser.parse_args()
     
