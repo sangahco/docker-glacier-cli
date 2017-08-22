@@ -1,7 +1,15 @@
 #!/usr/bin/env python
+
 from __future__ import print_function, division
 from datetime import datetime
 import atexit, os.path, sys, shutil, logging
+
+__author__ = "Emanuele Disco"
+__copyright__ = "Copyright 2017"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__email__ = "emanuele.disco@gmail.com"
+__status__ = "Production"
 
 _ori_stdout = sys.__stdout__
 _log = None

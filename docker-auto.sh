@@ -2,6 +2,9 @@
 
 set -e
 
+SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd "$SCRIPT_BASE_PATH"
+
 ###############################################
 # Extract Environment Variables from .env file
 # Ex. REGISTRY_URL="$(getenv REGISTRY_URL)"
@@ -13,11 +16,8 @@ getenv(){
 
 DOCKER_COMPOSE_VERSION="1.14.0"
 CONF_ARG="-f docker-compose.yml"
-SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PATH=$PATH:/usr/local/bin/
 REGISTRY_URL="$(getenv REGISTRY_URL)"
-
-cd "$SCRIPT_BASE_PATH"
 
 ########################################
 # Install docker-compose
@@ -40,12 +40,8 @@ usage() {
 echo "Usage:  $(basename "$0") [MODE] [OPTIONS] [COMMAND]"
 echo 
 echo "Mode:"
-echo "  --prod      ELK Stack for production"
-echo "  --dev       ELK Stack for development"
 echo
 echo "Options:"
-echo "  --with-cadv     Add CAdvisor service"
-echo "  --with-hub      Add encrypted connection for Kibana, hub required"
 echo
 echo "Commands:"
 echo "  run              Start the services"

@@ -2,6 +2,13 @@
 
 import json, csv, requests, logging, argparse, sys, os
 
+__author__ = "Emanuele Disco"
+__copyright__ = "Copyright 2017"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__email__ = "emanuele.disco@gmail.com"
+__status__ = "Production"
+
 # ElasticSearch parameters
 ES_HOST = os.getenv('ES_HOST', '127.0.0.1')
 ES_PORT = os.getenv('ES_PORT', '9200')
