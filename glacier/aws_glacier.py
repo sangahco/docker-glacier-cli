@@ -1,9 +1,19 @@
 #!/usr/bin/env python
+"""Provides a command line interface for managing AWS Glacier archives.
+It includes multipart file upload and basic functionalities to manage the Glacier vault.
+"""
 
 import requests, argparse, json, logging, sys, os, sha256_tree_hash, codecs
 import subprocess, es_data_import
 from pylog import PyLog
 from datetime import datetime
+
+__author__ = "Emanuele Disco"
+__copyright__ = "Copyright 2017"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__email__ = "emanuele.disco@gmail.com"
+__status__ = "Production"
 
 BACKUP_TEMP_FOLDER = '/tmp'
 PART_SIZE = 134217728  # 128M need to be power of 2
