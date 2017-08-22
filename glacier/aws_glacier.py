@@ -2,21 +2,25 @@
 
 import requests, argparse, json, logging, sys, os, sha256_tree_hash, codecs
 import subprocess, es_data_import
+from pylog import PyLog
 from datetime import datetime
 
-BACKUP_TEMP_FOLDER='/tmp'
-PART_SIZE=134217728  # 128M need to be power of 2
-AWS_VAULT=os.getenv('AWS_VAULT')
-ES_METADATA_INDEX=os.getenv('ES_INDEX')
-ES_METADATA_TYPE='archive'
-AWS_PATH='/root/.local/bin/aws'
-REMOVE_CHUNKS=False
+BACKUP_TEMP_FOLDER = '/tmp'
+PART_SIZE = 134217728  # 128M need to be power of 2
+AWS_VAULT = os.getenv('AWS_VAULT')
+ES_METADATA_INDEX = os.getenv('ES_INDEX')
+ES_METADATA_TYPE = 'archive'
+AWS_PATH = '/root/.local/bin/aws'
+REMOVE_CHUNKS = False
+GLACIER_DATA = '/usr/share/glacier/data'
+ARCHIVE_PREFIX = '{}/archive.part_'.format(BACKUP_TEMP_FOLDER)
 
-ARCHIVE_PREFIX='{}/archive.part_'.format(BACKUP_TEMP_FOLDER)
 _args = {}
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s')
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
+
+pylog = PyLog(filename=GLACIER_DATA + '/output.log', write_freq=1)
 
 def _start_request():
     out = subprocess.check_output([AWS_PATH, 
@@ -122,19 +126,31 @@ def register_vault_list(filename):
     for l in L['ArchiveList']:
         _log_to_es(json.dumps(l))
 
-    
+def delete(archive):
+    subprocess.call([AWS_PATH,
+        'glacier', 
+        'delete-archive',
+        '--vault-name={}'.format(AWS_VAULT),
+        '--account-id=-',
+        '--archive-id={}'.format( archive )
+    ])
+
 def _main():
     if _args.register:
-        register_vault_list(_args.file)
-    else:
-        upload(_args.file, _args.descr)
+        register_vault_list(GLACIER_DATA + '/' + _args.file)
+    elif _args.file:
+        out = upload(GLACIER_DATA + '/' + _args.file, _args.descr)
+        pylog.log(out)
+    elif _args.delete:
+        delete(_args.delete)
 
 if __name__=='__main__':   
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-f', action='store', dest='file', type=str, help='File to upload')
     _parser.add_argument('-m', action='store', dest='descr', type=str, help='Description')
     _parser.add_argument('-r', '--register', action='store_true', dest='register', help='Register vault list to ES')
-    _parser.add_argument('-d', '--debug', action='store_true', dest='debug', help='More logging on console')
+    _parser.add_argument('-v', '--verbose', action='store_true', dest='debug', help='More logging on console')
+    _parser.add_argument('-d', '--delete', action='store', dest='delete', type=str, help='Delete an archive')
     _args = _parser.parse_args()
     
     if _args.debug:
