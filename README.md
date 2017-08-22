@@ -1,5 +1,5 @@
-# docker-glacier-cli
-AWS Glacier Command Line Interface with Multipart Upload
+# AWS Glacier CLI with Multipart Upload
+
 
 ## Requirements
 
