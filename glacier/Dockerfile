@@ -26,6 +26,6 @@ RUN set -ex && \
 WORKDIR $GLACIER_HOME
 ENV PATH $GLACIER_HOME:$PATH
 
-#ENTRYPOINT ["aws_glacier.py"]
-#CMD ["--help"]
+ENTRYPOINT ["aws_glacier.py"]
+CMD ["--help"]
 
