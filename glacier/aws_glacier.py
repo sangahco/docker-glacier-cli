@@ -20,7 +20,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s')
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
-pylog = PyLog(filename=GLACIER_DATA + '/output.log', write_freq=1)
+output = PyLog(filename=GLACIER_DATA + '/output.log', write_freq=1)
 
 def _start_request():
     out = subprocess.check_output([AWS_PATH, 
@@ -111,8 +111,8 @@ def upload(filename, description):
     _logger.debug('Full sha256 tree hash: {}'.format(checksum))
     aws_response = _complete_request(filename, upload_id, checksum)
     _logger.debug('Upload Complete request response: {}'.format(aws_response))
-    #es_response = _log_to_es(aws_response, filename=filename, description=description)
-    #_logger.debug('ES import response : {}'.format(es_response))
+    es_response = _log_to_es(aws_response, filename=filename, description=description)
+    _logger.debug('ES import response : {}'.format(es_response))
 
     return aws_response
 
@@ -135,14 +135,52 @@ def delete(archive):
         '--archive-id={}'.format( archive )
     ])
 
+def list_inventory():
+    out = subprocess.check_output([AWS_PATH,
+        'glacier', 
+        'initiate-job',
+        '--vault-name={}'.format(AWS_VAULT),
+        '--account-id=-',
+        '--job-parameters={"Type": "inventory-retrieval"}'
+    ])
+    return out.decode('UTF-8')
+
+def jobs():
+    out = subprocess.check_output([AWS_PATH,
+        'glacier', 
+        'list-jobs',
+        '--vault-name={}'.format(AWS_VAULT),
+        '--account-id=-'
+    ])
+    return out.decode('UTF-8')
+
+def job(jobid):
+    out = subprocess.check_output([AWS_PATH,
+        'glacier', 
+        'get-job-output',
+        '--vault-name={}'.format(AWS_VAULT),
+        '--account-id=-',
+        '--job-id='.format(jobid)
+    ])
+    return out.decode('UTF-8')
+
 def _main():
     if _args.register:
         register_vault_list(GLACIER_DATA + '/' + _args.file)
     elif _args.file:
         out = upload(GLACIER_DATA + '/' + _args.file, _args.descr)
-        pylog.log(out)
+        output.write(out)
     elif _args.delete:
         delete(_args.delete)
+    elif _args.job:
+        out = job(_args.job)
+        output.write(out)
+    elif _args.jobs:
+        out = jobs()
+        output.write(out)
+    elif _args.list:
+        out = list_inventory()
+        output.write(out)
 
 if __name__=='__main__':   
     _parser = argparse.ArgumentParser()
@@ -151,8 +189,16 @@ if __name__=='__main__':
     _parser.add_argument('-r', '--register', action='store_true', dest='register', help='Register vault list to ES')
     _parser.add_argument('-v', '--verbose', action='store_true', dest='debug', help='More logging on console')
     _parser.add_argument('-d', '--delete', action='store', dest='delete', type=str, help='Delete an archive')
+    _parser.add_argument('--jobs', action='store_true', dest='jobs', help='Retrieve job list')
+    _parser.add_argument('-j', '--job', action='store', dest='job', type=str, help='Retrieve a job output')
+    _parser.add_argument('-l', '--archive-list', action='store_true', dest='list', help='Retrieve the archive list')
+    _parser.add_argument('-O', '--to-stdout', action='store_true', dest='stdout', help='Print to stdout')
+
     _args = _parser.parse_args()
     
+    if _args.stdout:
+        output = sys.stdout
+
     if _args.debug:
         _logger.setLevel(logging.DEBUG)
     

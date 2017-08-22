@@ -48,3 +48,15 @@ make sure to set the environment variable **GLACIER_DATA** to the folder where t
 Delete an archive from the Glacier Vault with the following command:
 
     $ ./docker-auto.sh run -d <archive id>
+
+Retrieve the archive list:
+
+    $ ./docker-auto.sh run --archive-list
+
+Retrieve the job list:
+
+    $ ./docker-auto.sh run --jobs
+
+Retrieve the output of a job (json or binary depending on the job type):
+
+    $ ./docker-auto.sh run --job <job id>
