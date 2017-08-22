@@ -40,12 +40,8 @@ usage() {
 echo "Usage:  $(basename "$0") [MODE] [OPTIONS] [COMMAND]"
 echo 
 echo "Mode:"
-echo "  --prod      ELK Stack for production"
-echo "  --dev       ELK Stack for development"
 echo
 echo "Options:"
-echo "  --with-cadv     Add CAdvisor service"
-echo "  --with-hub      Add encrypted connection for Kibana, hub required"
 echo
 echo "Commands:"
 echo "  run              Start the services"
