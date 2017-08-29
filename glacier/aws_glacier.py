@@ -170,7 +170,8 @@ def job(jobid):
         'get-job-output',
         '--vault-name={}'.format(AWS_VAULT),
         '--account-id=-',
-        '--job-id='.format(jobid)
+        '--job-id={}'.format(jobid),
+        GLACIER_DATA + '/job_output'
     ])
     return out.decode('UTF-8')
 
