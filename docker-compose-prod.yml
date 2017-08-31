@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  glacier:
+    image: ${REGISTRY_URL}/glacier-cli
+    volumes: 
+    - $GLACIER_DATA:/usr/share/glacier/data
+    environment: 
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_DEFAULT_REGION
+    - AWS_VAULT
+    - ES_HOST
+    - ES_PORT
