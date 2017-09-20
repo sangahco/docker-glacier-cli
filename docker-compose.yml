@@ -12,3 +12,8 @@ services:
     - AWS_VAULT
     - ES_HOST
     - ES_PORT
+    - ES_USER
+    - ES_PASSWORD
+    - ES_INDEX
+    - ES_TYPE
+    - PART_SIZE

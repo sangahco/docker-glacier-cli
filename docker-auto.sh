@@ -40,6 +40,8 @@ usage() {
 echo "Usage:  $(basename "$0") [MODE] [OPTIONS] [COMMAND]"
 echo 
 echo "Mode:"
+echo "  --prod      Use already built image"
+echo "  --dev       Build and run"
 echo
 echo "Options:"
 echo

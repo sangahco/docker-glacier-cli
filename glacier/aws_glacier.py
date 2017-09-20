@@ -23,14 +23,12 @@ __email__ = "emanuele.disco@gmail.com"
 __status__ = "Production"
 
 BACKUP_TEMP_FOLDER = '/tmp'
-PART_SIZE = 134217728  # 128M need to be power of 2
+PART_SIZE = int(os.getenv('PART_SIZE', 134217728))  # 128M need to be power of 2
 AWS_VAULT = os.getenv('AWS_VAULT')
 ES_METADATA_INDEX = os.getenv('ES_INDEX')
-ES_METADATA_TYPE = 'archive'
+ES_METADATA_TYPE = os.getenv('ES_TYPE', 'archive')
 AWS_PATH = '/root/.local/bin/aws'
-REMOVE_CHUNKS = False
 GLACIER_DATA = '/usr/share/glacier/data'
-ARCHIVE_PREFIX = '{}/archive.part_'.format(BACKUP_TEMP_FOLDER)
 
 _args = {}
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s')
@@ -81,49 +79,50 @@ def _log_to_es(data, description="", filename=""):
     response = es_data_import.post(ES_METADATA_INDEX, ES_METADATA_TYPE, data)
     return response.text
 
-
 def _multi_upload(filename, upload_id):
     stats = os.stat(filename)
     archive_size = stats.st_size
     parts = archive_size // PART_SIZE
     if archive_size % PART_SIZE > 0:
         parts += 1
-
+        
     sha256_parts = []
-    dd = subprocess.Popen(['dd', 'if=%s' % filename, 'bs=2M'], stdout=subprocess.PIPE)
-    #gzip = subprocess.Popen(['gzip', '-1', '-'], stdin=dd.stdout, stdout=subprocess.PIPE)
-    out = subprocess.check_output(['split',
-                                   '--suffix-length=2',
-                                   '--numeric-suffixes=0',
-                                   '--bytes=%s' % PART_SIZE, '-', ARCHIVE_PREFIX],
-                                  stdin=dd.stdout)
-
-    start = 0
-    end = 0
+    start=0
+    end=0
     for i in range(parts):
-        part_filename = ARCHIVE_PREFIX + ('%02d' % i)
-        stats = os.stat(part_filename)
-        end = start + stats.st_size - 1
-
+        part_filename = BACKUP_TEMP_FOLDER + '/archive.part'
+        end = start + PART_SIZE - 1
+        if end > archive_size:
+            end = archive_size - 1
+ 
+        _logger.debug('Sending part %s-%s', start, end)
+        dd = subprocess.Popen(['dd', 
+                          'if=%s' % filename,
+                          'of=%s' % part_filename,
+                          'bs=2M',
+                          'skip=%s' % (start // (2*1048576)),
+                          'count=%s' % (PART_SIZE // (2*1048576)),
+                          'status=noxfer'
+                         ])
+        dd.wait()
         chunks = sha256_tree_hash.get_chunks_sha256_hashes(part_filename)
         checksum = sha256_tree_hash.compute_sha256_tree_hash(chunks)
         sha256_parts.append(codecs.getdecoder('hex')(checksum)[0])
-
+        
         subprocess.call([AWS_PATH,
-                         'glacier',
+                         'glacier', 
                          'upload-multipart-part',
                          '--vault-name={}'.format(AWS_VAULT),
                          '--account-id=-',
                          '--body', part_filename,
                          '--upload-id', str(upload_id),
                          '--checksum', checksum,
-                         '--range', 'bytes {}-{}/*'.format(start, end)])
+                         '--range', 'bytes {}-{}/*'.format(start, end)
+                        ])
         start = start + PART_SIZE
+        os.remove(part_filename)  # remove temporary part file
 
-        if REMOVE_CHUNKS:
-            os.remove(part_filename)
-
-    complete_checksum = sha256_tree_hash.compute_sha256_tree_hash(sha256_parts)
+    complete_checksum = sha256_tree_hash.compute_sha256_tree_hash( sha256_parts )
     return complete_checksum
 
 

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
-import json, csv, requests, logging, argparse, sys, os
+import json
+import csv
+import requests
+import logging
+import argparse
+import sys
+import os
+from requests.auth import HTTPBasicAuth
 
 __author__ = "Emanuele Disco"
 __copyright__ = "Copyright 2017"
@@ -12,6 +19,8 @@ __status__ = "Production"
 # ElasticSearch parameters
 ES_HOST = os.getenv('ES_HOST', '127.0.0.1')
 ES_PORT = os.getenv('ES_PORT', '9200')
+ES_USER = os.getenv('ES_USER', 'elastic')
+ES_PASSWORD = os.getenv('ES_PASSWORD', 'changeme')
 
 # Lets make some logs!
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s')
@@ -21,9 +30,12 @@ _logger.setLevel(logging.INFO)
 def post(index, typez, data):
     s = requests.Session()
 
-    r = s.post( "http://%s:%s/%s/%s" % 
-              (ES_HOST, ES_PORT, index, typez), 
-              data=json.dumps(data))
+    r = s.post( "https://%s:%s/%s/%s" % 
+                (ES_HOST, ES_PORT, index, typez), 
+                data=json.dumps(data),
+                auth=HTTPBasicAuth(ES_USER, ES_PASSWORD)
+                #,verify=False
+              )
     
     _logger.debug(r.text)
     return r
