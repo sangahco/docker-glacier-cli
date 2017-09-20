@@ -15,7 +15,7 @@ getenv(){
 }
 
 DOCKER_COMPOSE_VERSION="1.14.0"
-CONF_ARG="-f docker-compose.yml"
+CONF_ARG="-f docker-compose-prod.yml"
 PATH=$PATH:/usr/local/bin/
 REGISTRY_URL="$(getenv REGISTRY_URL)"
 
@@ -40,6 +40,8 @@ usage() {
 echo "Usage:  $(basename "$0") [MODE] [OPTIONS] [COMMAND]"
 echo 
 echo "Mode:"
+echo "  --prod      Use already built image"
+echo "  --dev       Build and run"
 echo
 echo "Options:"
 echo
@@ -62,6 +64,14 @@ fi
 for i in "$@"
 do
 case $i in
+    --prod)
+        CONF_ARG="-f docker-compose-prod.yml"
+        shift
+        ;;
+    --dev)
+        CONF_ARG="-f docker-compose.yml"
+        shift
+        ;;
     --help|-h)
         usage
         exit 1

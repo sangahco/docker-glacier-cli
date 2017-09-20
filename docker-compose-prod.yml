@@ -2,7 +2,7 @@ version: '2'
 
 services:
   glacier:
-    build: glacier
+    image: ${REGISTRY_URL}/glacier-cli
     volumes: 
     - $GLACIER_DATA:/usr/share/glacier/data
     environment: 
