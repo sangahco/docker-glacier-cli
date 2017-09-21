@@ -134,7 +134,7 @@ def upload(filename, description):
     _logger.debug('Full sha256 tree hash: %s', checksum)
     aws_response = _complete_request(filename, upload_id, checksum)
     _logger.debug('Upload Complete request response: %s', aws_response)
-    es_response = _log_to_es(aws_response, filename=filename, description=description)
+    es_response = _log_to_es(aws_response, description, filename)
     _logger.debug('ES import response : %s', es_response)
 
     return aws_response
@@ -203,7 +203,7 @@ def _main():
     if _args.register:
         register_vault_list(GLACIER_DATA + '/' + _args.file)
     elif _args.file:
-        out = upload(GLACIER_DATA + '/' + _args.file, _args.descr)
+        out = upload(GLACIER_DATA + '/' + _args.file, _args.descr or _args.file)
         output.write(out)
     elif _args.delete:
         delete(_args.delete)
@@ -221,7 +221,7 @@ def _main():
 if __name__ == '__main__':
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-f', action='store', dest='file',
-                         type=str, help='the file to upload without full path')
+                         type=str, help='the file to upload relative to the data folder')
     _parser.add_argument('-m', action='store', dest='descr',
                          type=str, help='description to upload')
     _parser.add_argument('-r', '--register', action='store_true',
