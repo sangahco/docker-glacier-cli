@@ -8,6 +8,7 @@ COPY . / $GLACIER_HOME
 RUN set -ex && \
     apt-get update && apt-get -y install \
       python3 \
+      ca-certificates \
       curl && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     curl https://bootstrap.pypa.io/get-pip.py -o /usr/local/src/get-pip.py && \

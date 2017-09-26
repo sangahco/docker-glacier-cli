@@ -16,4 +16,5 @@ services:
     - ES_PASSWORD
     - ES_INDEX
     - ES_TYPE
+    - ES_USE_SSL
     - PART_SIZE
