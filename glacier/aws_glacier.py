@@ -44,7 +44,7 @@ def _start_request(descr=''):
                                    "initiate-multipart-upload",
                                    "--vault-name={}".format(AWS_VAULT),
                                    "--account-id=-",
-                                   "--archive-description", "\"{}\"".format(descr),
+                                   "--archive-description={}".format(descr),
                                    "--part-size={}".format(PART_SIZE)
                                    ])
     return json.loads(out.decode('UTF-8'))['uploadId']
