@@ -1,3 +1,6 @@
+[![HitCount](http://hits.dwyl.io/sangahco/sangahco/docker-glacier-cli.svg)](http://hits.dwyl.io/sangahco/sangahco/docker-glacier-cli)
+[![Jenkins](https://img.shields.io/jenkins/s/https/dev.builder.sangah.com/job/glacier-cli.svg?style=flat-square)]()
+
 # AWS Glacier CLI with Multipart Upload
 
 
